@@ -1,0 +1,274 @@
+{% extends "Inra2013urzBundle:Default:IndexUser.html.twig" %}
+{% block title %}Create Analyse{% endblock %}
+
+{%block menu2 %}
+{% if Role[0] == 'ROLE_RESPONSABLE' %}
+    {% if  Protocole[0].Validation == 1 or  Protocole[0].Validation == 3 %}
+<div class="well" >
+
+    <form method="POST" action={{path('Inra2013Bundle_ValidAnalyse')}} >
+        <h5>Conformité des résultats ?</h5>
+        <button class="btn btn-primary" type="submit" >Valider</button>
+
+        <a  role="button" class="btn btn-danger" data-toggle="modal" href="#refus" >Réfuser </a>
+        <input type="hidden" name="NumProtocole" value="{{NumProtocole}}" />
+        <input type="hidden" name="Status" value=2 />  
+    </form>
+
+</div>
+    {% endif %}
+
+ {% endif %}
+
+
+
+{%endblock%}
+
+
+
+{%block body%}
+{#Ici on vas faire la saisie des données pour les analyses#}
+
+<ul class="nav nav-tabs" id="myTab">
+
+    {% for typeanalyse in TypeAnalyse %}
+    {%if loop.index == 1%}
+    <li class="active"><a href="#{{typeanalyse.Nom}}">{{typeanalyse.Nom}}</a></li>
+     {%else%}
+        <li ><a href="#{{typeanalyse.Nom}}">{{typeanalyse.Nom}}</a></li>
+    {%endif%}
+    {%endfor%}
+
+        </ul>
+
+
+        <div class="tab-content">
+
+  {%for typeanalyse in TypeAnalyse %}
+
+    {% if loop.index == 1 %}
+
+            <div class="tab-pane active" id="{{typeanalyse.Nom}}" >
+
+                <table class="table table-striped table-hover" >
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>CodeLabo</th>
+
+                     {%for Champ in Champs[typeanalyse.Nom] %}
+                            <th>{{Champ.Champ}}</th>
+                     {% endfor %} 
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+
+
+
+                  {%for keys,Resultats in attribute(ResultatCodeLabo,typeanalyse.Nom) %}
+
+                             {% for Result in attribute(Resultats,'Champs' ~ typeanalyse.Nom)  %}
+                            <tr>     
+                                <td> {{keys}} </td>
+                                <td>{{Resultats.CodeLabo}}</td>
+
+                                {% for Champ in Champs[typeanalyse.Nom] %}
+
+                                               {% if attribute(Result,Champ.Champ) is null %}
+
+                                <td style="color:red">NULL</td>
+
+
+                                {% else %}
+                                <td>{{attribute(Result,Champ.Champ)}}</td>
+
+                                {% endif %}
+
+
+                                {%endfor%}
+
+                            </tr>
+                 {%endfor%}        
+                                    {%endfor%}
+
+                        </tbody>
+                    </table>   
+
+                </div>
+
+        {% else %}
+
+                <div class="tab-pane " id="{{typeanalyse.Nom}}" >
+
+
+                    <table class="table table-striped table-hover" >
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>CodeLabo</th>
+
+                     {%for Champ in Champs[typeanalyse.Nom] %}
+
+                                <th>{{Champ.Champ}}</th>
+
+                     {% endfor %} 
+
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+
+                  {%for keys,Resultats in attribute(ResultatCodeLabo,typeanalyse.Nom) %}
+
+                             {% for Result in attribute(Resultats,'Champs' ~ typeanalyse.Nom)  %}
+                            <tr>     
+                                <td> {{keys}} </td>
+                                <td>{{Resultats.CodeLabo}}</td>
+
+                                {% for Champ in Champs[typeanalyse.Nom] %}
+
+                                {% if attribute(Result,Champ.Champ) is null %}
+
+                                <td style="color:red">NULL</td>
+
+                                {% else %}
+
+                                <td>{{attribute(Result,Champ.Champ)}}</td>
+
+                                {% endif %}
+
+
+                                {%endfor%}
+
+                            </tr>
+                 {%endfor%}        
+                                    {%endfor%}
+                        </tbody>
+
+                    </table> 
+
+
+
+
+                </div>
+
+{%endif%}  
+
+
+     {%endfor%}
+
+            </div>
+
+
+
+
+
+
+
+
+
+{# modal pour la validation des resultats #}
+
+            <form method="POST" action={{path('Inra2013Bundle_ValidAnalyse')}} >
+                <div id="validation" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h3 id="myModalLabel">ENVOIE POUR VALIDATION</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>Êtes-vous sur de vouloir envoyer les resultats pour validation?</p></br>
+                        <p>Commentaire :</p>
+                        <textarea name="Commentaire" id="input" class="offset1 span7" rows="3">     
+                                {% if Protocole[0].Commentaire is not empty %}
+                                            </br>
+                                            {{ Protocole[0].Commentaire}} </br></br>  *****************************************************
+                                          {%endif%}
+                                              
+                            </textarea>
+                        </div>
+
+
+                        <div class="modal-footer">
+                            <button class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Annuler</button>
+                            <button class="btn btn-primary" type="submit" >Validation</button></a>
+                        </div>
+                    </div>
+                    <input type="hidden" name="NumProtocole" value="{{NumProtocole}}" />
+                    <input type="hidden" name="Status" value=1 />  
+                </form>
+
+{# modal pour le refus des résultats #}
+
+                <form method="POST" action={{path('Inra2013Bundle_ValidAnalyse')}} >
+                    <div id="refus" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h3 id="myModalLabel">REFUS DE LA VALIDATION </h3>
+                        </div>
+                        <div class="modal-body">
+                            <p>Êtes-vous sur de vouloir envoyer les resultats pour validation?</p></br>
+                            <p>Commentaire :</p>
+                            <textarea name="Commentaire" id="input1" class="offset1 span7" rows="3">     
+                                {% if Protocole[0].Commentaire is not empty %}
+                                            </br>
+                                            {{ Protocole[0].Commentaire}} </br></br>  *****************************************************
+                                          {%endif%}
+                                              
+                                </textarea>
+                            </div>
+
+
+                            <div class="modal-footer">
+                                <button class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Annuler</button>
+                                <button class="btn btn-primary" type="submit" >Validation</button></a>
+                            </div>
+                        </div>
+                        <input type="hidden" name="NumProtocole" value="{{NumProtocole}}" />
+                        <input type="hidden" name="Status" value=3 />  
+                    </form>
+
+{%endblock %}
+    {% block stylesheets %}
+                    <link rel="stylesheet" type="text/css" href="{{asset('js/CLEditor1_3_0/jquery.cleditor.css')}}" />
+                    <link rel="stylesheet" type="text/css" href="{{asset('bootstrap-editable/css/bootstrap-editable.css')}}" />
+
+
+{% endblock %}
+{%block javascripts%} 
+                    <script type="text/javascript" src="{{asset('js/CLEditor1_3_0/jquery.cleditor.min.js')}}"></script>
+                    <script type="text/javascript" src="{{asset('bootstrap-editable/js/bootstrap-editable.js')}}"></script>
+                    <script>
+                        $('#myTab a').click(function(e) {
+                            e.preventDefault();
+                            $(this).tab('show');
+                        });
+                        </script>
+
+                        <script type="text/javascript">
+                            $(document).ready(function() {
+                                $("#input").cleditor();
+                            });
+                            $(document).ready(function() {
+                                $("#input1").cleditor();
+                            });
+                            </script>
+
+
+                                {#
+                    {% if type == "UpdateAnalyse" %}
+                                <script type="text/javascript">
+                                   {# $.fn.editable.defaults.mode = 'inline'; 
+                                       $('.username').editable({
+                                           type: 'text',
+                                           pk: 1,
+                                           url: "{{path('Inra2013Bundle_UpdateAnalyse')}}",
+                                           title: 'Modification des resultats'
+                                       });
+                           
+                    {% endif %}
+               #}   
+{%endblock %}

@@ -1,0 +1,190 @@
+   {% extends "Inra2013urzBundle:Default:IndexUser.html.twig" %}
+{% block title %}Importation de fchier excel{% endblock %}
+  {% block stylesheets %}
+<link rel="stylesheet" href="{{ asset ('css/jquery.fileupload-ui.css') }}" />
+ {% endblock %}
+
+{% block body %}
+
+{%if Status is  defined %}
+
+<div class="alert alert-error"> 
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    Votre fichier excel à été bien enregistré.
+</div>
+{% endif%}
+
+
+    {% if xls is not defined %}
+
+
+<form id="fileupload" action = "{{ path('Inra2013Bundle_UploadFile') }}"  enctype="multipart/form-data" method="POST">
+    <!-- Redirect browsers with JavaScript disabled to the origin page -->
+    <div class="well">
+        <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+        <div id="output" class="row fileupload-buttonbar">
+            <div class="span4 offset1">
+                <!-- The fileinput-button span is used to style the file input field as button -->
+                <span style="margin-left: 10px" class="btn btn-success fileinput-button">
+                    <i class="icon-plus icon-white"></i>
+                    <span >Ajouter fichier csv</span>
+                    <input type="file" id="fileElem" name="files" onchange="handleFiles(this.files)" >  
+{% if protocole is not null %}
+                    <input type="hidden" name="protocole" value="{{protocole}}" />
+                    <input type="hidden" name="type" value="{{type}}" />
+                    {%endif%}
+                </span>
+
+            </div>  
+            <div id="output" class="span5 offset1">
+                <h3>Ou déposer le fichier ici</h3>     
+            </div>
+
+
+            <!-- The global progress information -->
+            <div class="span5 fileupload-progress fade">
+                <!-- The global progress bar -->
+                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                    <div class="bar" style="width:0%;"></div>
+                </div>
+                <!-- The extended global progress information -->
+                <div class="progress-extended">&nbsp;</div>
+            </div>
+        </div>
+        <!-- The loading indicator is shown during file processing -->
+        <div class="fileupload-loading"></div>
+        <br>
+        <!-- The table listing the files available for upload/download -->
+        <table role="presentation" class="table table-striped"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table>
+    </div>
+
+    <div id="mon_element">
+
+    </div>
+
+</form>
+<br>
+
+
+
+  {% else %}
+<div class="alert alert-info">Prévisualisation des données à insérer</div>
+
+<form  action="{{path(form_path)}}" method="POST" >
+
+    <table class="table table-striped">
+
+        {% set xls1 = xls.getsheet(0) %}
+        {% for cell in xls1.getRowIterator()  %} 
+
+{% if cell.getRowIndex() == 1  %}
+
+        <thead> <tr>  
+
+         {% for liste in cell.getCellIterator()  %}   
+          {%if loop.index != 2 and loop.index != 5 and loop.index != 8  and loop.index != 13  and loop.index != 14 %} {# on retire les champs qu on veut pas afficher#}
+                <th>{{liste.getValue()}}</th>
+          {%endif%}     
+        {%endfor%}
+
+                </tr></thead>
+
+
+{% endif %}
+
+        {%endfor%}
+
+{% for liste in xls1.getRowIterator()  %}
+
+            <tr>
+
+    {% if loop.index < 15 %} {#On limite l'affichage a 10 resultat,ceci n'est qu'une previsualisation des données de la base#}  
+
+{% for cell in liste.getCellIterator()  %}
+  {%if loop.index != 2 and loop.index != 5 and loop.index != 8  and loop.index != 13  and loop.index != 14 %}
+{% if liste.getRowIndex() != 1  %} 
+        {% if  cell.getColumn() == 'I' or cell.getColumn() == 'J' %}
+                <td>{{cell.getCalculatedValue() }}</td> {# Permet de calculer les fonctions mathématique de la feuille excel et permet ainsi d'avoir un affichage numérique #}
+                {% elseif  cell.getColumn() == "G" or cell.getColumn() == "H"   %}
+
+                <td>{{xls1.getStyle('G1').getNumberFormat().toFormattedString(cell.getValue(), "M/D/YYYY") }}</td> {# Permet d'avoir les valeur des lignes #}
+
+                {% else %}
+                <td>{{cell.getValue()}}</td>
+                {% endif%}
+
+                {% endif %}         {%endif%} 
+{%endfor%}
+
+       {% endif%}
+
+{% endfor %}
+
+
+
+            </tr>
+        </table> 
+
+        <input type="hidden" name="files" value="{{file}}"/>
+        <input type="hidden" name="numProtocole" value="{{protocole}}"/>
+        <input type="hidden" name="Status" value="Enregistrement" /> {#Permet de savoir qu'on envoie pour l"enregistrement#}
+        <input type="submit" class="btn btn-danger" value="Cancel" />
+
+        <input type="submit" class="btn btn-primary" value="Enregistrer"  />
+
+    </form> 
+  {% endif%}
+
+
+{% endblock %}
+
+   {% block javascripts %}
+
+    <script type="text/javascript">
+
+                        function handleFiles(files) {
+
+                            var texte = "<table class='table table-striped'><tbody><tr><td><img height='40' width='40' src='{{asset(('img/icone_excel.jpg'))}}'</td><td>" + files[0].name + "</td><td>" + files[0].size + "</td><td><button type='submit' class='btn btn-primary start'><i class='icon-upload icon-white'></i><span>Start upload</span></button></td><td><button type='reset' class='btn btn-warning cancel'><i class='icon-ban-circle icon-white'></i><span>Cancel upload</span> </button></td></tr></tbody></table>";
+
+                            $('#mon_element').html(texte);
+var selected_file = $('#fileElem').get(0).files[0].name;
+console.log("informzyion" + selected_file);
+
+
+                        }
+
+                        $(document).ready(function() {
+                            $.event.props.push("dataTransfer");
+                            // On pose les évènements nécessaires au drag'n'drop
+                            $('#output').bind({
+                                "dragenter dragexit dragover": do_nothing,
+                                drop: drop
+                            });
+
+                        });
+
+// Fonction stoppant toute évènement natif et leur propagation
+                        function do_nothing(evt) {
+                            evt.stopPropagation();
+                            evt.preventDefault();
+                        }
+
+                        function drop(evt) {
+                            do_nothing(evt);
+                            var files = evt.dataTransfer.files;
+                          
+                       handleFiles(files);
+
+                            //   console.log(files[0].size);
+                            //  handleFiles(files);
+
+                        }
+
+        </script>
+
+
+
+
+
+
+{% endblock %}

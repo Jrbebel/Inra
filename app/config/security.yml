@@ -1,0 +1,33 @@
+security:
+    providers:
+        fos_userbundle:
+            id: fos_user.user_provider.username
+
+    encoders:
+        FOS\UserBundle\Model\UserInterface: sha512
+
+    firewalls:
+        main:
+           
+            
+            form_login:
+                provider: fos_userbundle
+                csrf_provider: form.csrf_provider
+                default_target_path: /redirection/agent
+            logout:
+                target: /Home 
+          
+            anonymous:    true
+
+    access_control:
+      
+        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/Admin/, role: ROLE_ADMINISTRATEUR }
+        - { path: ^/User/*, role: ROLE_UTILISATEUR } 
+        
+    role_hierarchy:    
+      
+        ROLE_USER : ROLE_USER
+        ROLE_RESPONSABLE: ROLE_UTILISATEUR
+        ROLE_SUPER_ADMIN: [ROLE_RESPONSABLE, ROLE_ALLOWED_TO_SWITCH]
+        

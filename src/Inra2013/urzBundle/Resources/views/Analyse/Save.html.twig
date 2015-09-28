@@ -1,0 +1,66 @@
+{% extends "Inra2013urzBundle:Default:IndexUser.html.twig" %}
+{% block title %}Sauvegarde Analyse{% endblock %}
+
+
+{%block body%}
+{% if Status == "SaveAnalyse" %}
+<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Vos résultat d'analyse à bien été enregistrer.</p>
+</div>
+{% elseif Status == 1 %}
+<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Vos résultat d'analyse sont en cours de validation.</p>
+</div>
+{% elseif Status == 2 %}
+<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Vos résultat d'analyse ont été validé.</p>
+</div>
+{% elseif Status == 3 %}
+<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Envoie d'alerte mail pour refus de resultat</p>
+</div>
+{% elseif Status == "TypeCategorie" %}
+<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Catégorie d'analyse crée avec succes.</p>
+</div>
+{% elseif Status == "TypeCategorieError" %}
+<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Enregistrement de la catégorie d'analyse échoué,recommencez ou contactez l'adminiistrateur.</p>
+</div>
+{% elseif Status == "CategorieAnalyse" %}
+<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Analyse crée avec succes.</p>
+</div>
+{% elseif Status == "CategorieAnalyseError" %}
+<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Enregistrement de l'analyse échoué,recommencez ou contactez l'adminiistrateur.</p>
+</div>
+{% elseif Status == "Analyse" %}
+<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Analyse crée avec succes.</p>
+</div>
+{% elseif Status == "AnalyseError" %}
+<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Ce nom est deja utilisé ,réessayez ou contactez l'administrateur.</p>
+</div>
+{% elseif Status == "Champs" %}
+<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Champs pour analyse crée avec succes.</p>
+</div>
+{% elseif Status == "ChampsError" %}
+<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Enregistrement des champs pour l'analyse a échoué,recommencez ou contactez l'adminiistrateur</p>
+</div>
+{% elseif Status == "Formule" %}
+<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Création de la formule réussi.</p>
+</div>
+{% elseif Status == "FormuleError" %}
+<div class="alert alert-danger"><a href="#" class="close" data-dismiss="alert">&times;</a>
+    <p>Enregistrement de la formule echoué,recommencez ou contactez l'adminiistrateur</p>
+</div>
+{%endif%}
+
+
+{%endblock body%}
+
